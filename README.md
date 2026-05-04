@@ -34,8 +34,20 @@ schema de redirection Expo `cultureflash://auth/callback` dans les URLs autorise
 
 ```bash
 npm run typecheck
+npm run lint
+npm run format:check
 npx expo-doctor@latest
 ```
+
+## Pages legales
+
+Les liens du paywall pointent vers GitHub Pages :
+
+- `https://wingsy7.github.io/CultureFlash/privacy.html`
+- `https://wingsy7.github.io/CultureFlash/terms.html`
+
+Dans GitHub, active Pages avec `Settings > Pages > Deploy from a branch`, puis
+choisis `main` et le dossier `/docs`.
 
 ## Build store
 

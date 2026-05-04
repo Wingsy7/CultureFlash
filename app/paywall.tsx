@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useSubscription } from '@/hooks/useSubscription';
 
-const PRIVACY_URL = 'https://github.com/Wingsy7/CultureFlash/blob/main/PRIVACY.md';
-const TERMS_URL = 'https://github.com/Wingsy7/CultureFlash/blob/main/TERMS.md';
+const PRIVACY_URL = 'https://wingsy7.github.io/CultureFlash/privacy.html';
+const TERMS_URL = 'https://wingsy7.github.io/CultureFlash/terms.html';
 
 const benefits = [
   'Questions illimitées chaque jour',
