@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "CultureFlash",
+    "slug": "culture-flash",
+    "scheme": "cultureflash",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cultureflash.app"
+    },
+    "android": {
+      "package": "com.cultureflash.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0f172a"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-notifications"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
