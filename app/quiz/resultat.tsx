@@ -8,8 +8,13 @@ import { useSubscription } from '@/hooks/useSubscription';
 const readParam = (value: string | string[] | undefined): string =>
   Array.isArray(value) ? value[0] ?? '' : value ?? '';
 
-const buildExplanation = (category: string): string =>
-  `Cette question vient de la categorie ${category}. Garde la bonne reponse en tete : les petites revisions regulieres transforment vite la culture generale en reflexe.`;
+const buildExplanation = (isCorrect: boolean, category: string): string => {
+  if (isCorrect) {
+    return `Bien joué : tu as validé la question ${category}. Garde ce rythme, les réponses quotidiennes font vite grimper ton niveau.`;
+  }
+
+  return `Ce n’était pas la bonne réponse, mais c’est exactement comme ça qu’on retient. Revois la réponse une fois maintenant, et elle reviendra plus naturellement la prochaine fois.`;
+};
 
 export default function ResultScreen() {
   const router = useRouter();
@@ -18,7 +23,7 @@ export default function ResultScreen() {
   const { isPro } = useSubscription();
   const isCorrect = readParam(params.isCorrect) === 'true';
   const correctAnswer = readParam(params.correctAnswer);
-  const category = readParam(params.category) || 'Culture generale';
+  const category = readParam(params.category) || 'culture générale';
 
   return (
     <SafeAreaView className="flex-1 bg-paper px-5 py-6">
@@ -38,19 +43,19 @@ export default function ResultScreen() {
             </Text>
           </View>
           <Text className="text-center text-4xl font-black text-slate-950">
-            {isCorrect ? 'Bonne reponse !' : 'Pas tout a fait...'}
+            {isCorrect ? 'Bonne réponse !' : 'Pas tout à fait...'}
           </Text>
         </View>
 
         <View className="gap-4 rounded-lg bg-white p-5 shadow-sm shadow-slate-200">
           <Text className="text-sm font-bold uppercase text-slate-500">
-            Bonne reponse
+            Bonne réponse
           </Text>
           <Text className="rounded-lg bg-emerald-50 p-4 text-lg font-black text-emerald-800">
             {correctAnswer}
           </Text>
           <Text className="text-base leading-7 text-slate-600">
-            {buildExplanation(category)}
+            {buildExplanation(isCorrect, category)}
           </Text>
           <Text className="text-xl font-black text-slate-950">
             Streak : {streak.currentStreak} jours
@@ -59,25 +64,25 @@ export default function ResultScreen() {
 
         {!isPro && streak.currentStreak > 3 ? (
           <Pressable
-            accessibilityLabel="Debloquer le classement avec Pro"
+            accessibilityLabel="Débloquer le classement avec Pro"
             accessibilityRole="button"
             className="rounded-lg bg-slate-950 px-5 py-4"
             onPress={() => router.push('/paywall')}
           >
             <Text className="text-center text-base font-black text-white">
-              Debloquez le classement avec Pro
+              Débloquez le classement avec Pro
             </Text>
           </Pressable>
         ) : null}
 
         <Pressable
-          accessibilityLabel="Retour a l'accueil"
+          accessibilityLabel="Retour à l'accueil"
           accessibilityRole="button"
           className="rounded-lg bg-emerald-600 px-5 py-4"
           onPress={() => router.replace('/')}
         >
           <Text className="text-center text-base font-black text-white">
-            Retour a l'accueil
+            Retour à l'accueil
           </Text>
         </Pressable>
       </View>

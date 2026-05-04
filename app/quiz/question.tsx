@@ -4,21 +4,22 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { QuestionCard } from '@/components/QuestionCard';
-import { useAuth } from '@/hooks/useAuth';
 import { useQuestion } from '@/hooks/useQuestion';
 import { useStreak } from '@/hooks/useStreak';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useUserStore } from '@/store/userStore';
 
 const PRO_TIMER_SECONDS = 30;
 
 export default function QuestionScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const user = useUserStore((state) => state.user);
   const { question, isLoading, errorMessage, refreshQuestion } = useQuestion();
   const { hasPlayedToday, recordAnswer } = useStreak();
   const { isPro } = useSubscription();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
   const [timeLeft, setTimeLeft] = useState(PRO_TIMER_SECONDS);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function QuestionScreen() {
   }, [router, user]);
 
   useEffect(() => {
-    if (!isPro || selectedAnswer || hasPlayedToday) {
+    if (!isPro || selectedAnswer || hasPlayedToday || hasTimedOut) {
       return;
     }
 
@@ -37,11 +38,18 @@ export default function QuestionScreen() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [hasPlayedToday, isPro, selectedAnswer]);
+  }, [hasPlayedToday, hasTimedOut, isPro, selectedAnswer]);
+
+  useEffect(() => {
+    if (isPro && !selectedAnswer && timeLeft === 0) {
+      setHasTimedOut(true);
+      setSubmitError('Temps écoulé ! Reviens demain pour une nouvelle question.');
+    }
+  }, [isPro, selectedAnswer, timeLeft]);
 
   const handleSelectAnswer = useCallback(
     async (answer: string): Promise<void> => {
-      if (!question || selectedAnswer || hasPlayedToday) {
+      if (!question || selectedAnswer || hasPlayedToday || hasTimedOut) {
         return;
       }
 
@@ -68,11 +76,18 @@ export default function QuestionScreen() {
         setSubmitError(
           error instanceof Error
             ? error.message
-            : 'Impossible d’enregistrer ta reponse.',
+            : 'Impossible d’enregistrer ta réponse.',
         );
       }
     },
-    [hasPlayedToday, question, recordAnswer, router, selectedAnswer],
+    [
+      hasPlayedToday,
+      hasTimedOut,
+      question,
+      recordAnswer,
+      router,
+      selectedAnswer,
+    ],
   );
 
   if (isLoading) {
@@ -97,7 +112,7 @@ export default function QuestionScreen() {
 
         {question ? (
           <QuestionCard
-            disabled={Boolean(selectedAnswer) || hasPlayedToday}
+            disabled={Boolean(selectedAnswer) || hasPlayedToday || hasTimedOut}
             onSelectAnswer={(answer) => void handleSelectAnswer(answer)}
             question={question}
             selectedAnswer={selectedAnswer}
@@ -108,7 +123,7 @@ export default function QuestionScreen() {
               Question indisponible
             </Text>
             <Text className="text-sm text-slate-600">
-              {errorMessage ?? 'Reessaie dans quelques instants.'}
+              {errorMessage ?? 'Réessaie dans quelques instants.'}
             </Text>
             <Pressable
               accessibilityLabel="Recharger la question"

@@ -32,7 +32,7 @@ export const AnswerButton = memo(function AnswerButton({
 }: AnswerButtonProps) {
   return (
     <Pressable
-      accessibilityLabel={`Reponse: ${text}`}
+      accessibilityLabel={`Réponse : ${text}`}
       accessibilityRole="button"
       className={`min-h-14 justify-center rounded-lg border px-4 py-3 ${containerClasses[state]} ${
         disabled ? 'opacity-90' : 'active:scale-[0.99]'

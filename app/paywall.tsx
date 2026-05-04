@@ -1,17 +1,24 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useSubscription } from '@/hooks/useSubscription';
 
+const PRIVACY_URL = 'https://github.com/Wingsy7/CultureFlash/blob/main/PRIVACY.md';
+const TERMS_URL = 'https://github.com/Wingsy7/CultureFlash/blob/main/TERMS.md';
+
 const benefits = [
-  'Questions illimitees chaque jour',
-  'Acces a toutes les categories',
-  'Classement mondial en temps reel',
-  'Defis entre amis',
-  'Historique complet illimite',
-  'Sans publicite',
+  'Questions illimitées chaque jour',
+  'Accès à toutes les catégories',
+  'Classement mondial en temps réel',
+  'Défis entre amis',
+  'Historique complet illimité',
+  'Sans publicité',
 ];
+
+const openLegalUrl = (url: string): void => {
+  void Linking.openURL(url);
+};
 
 export default function PaywallScreen() {
   const router = useRouter();
@@ -30,7 +37,7 @@ export default function PaywallScreen() {
       <ScrollView contentContainerClassName="gap-6 px-5 pb-8 pt-4">
         <View className="flex-row items-center justify-between">
           <Text className="text-3xl font-black text-slate-950">
-            Passez a Quiz Pro
+            Passez à Quiz Pro
           </Text>
           <Pressable
             accessibilityLabel="Fermer le paywall"
@@ -82,7 +89,7 @@ export default function PaywallScreen() {
             <View className="flex-row items-center justify-between gap-3">
               <Text className="text-xl font-black text-slate-950">Annuel</Text>
               <Text className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-black text-white">
-                Economisez 37%
+                Économisez 37%
               </Text>
             </View>
             <Text className="mt-1 text-base font-semibold text-slate-600">
@@ -112,13 +119,25 @@ export default function PaywallScreen() {
           </Text>
         </Pressable>
 
-        <View className="flex-row justify-center gap-4">
-          <Text className="text-xs font-semibold text-slate-400">
-            Mentions legales
-          </Text>
-          <Text className="text-xs font-semibold text-slate-400">
-            Politique de confidentialite
-          </Text>
+        <View className="flex-row flex-wrap justify-center gap-4">
+          <Pressable
+            accessibilityLabel="Ouvrir les mentions légales"
+            accessibilityRole="link"
+            onPress={() => openLegalUrl(TERMS_URL)}
+          >
+            <Text className="text-xs font-semibold text-slate-400">
+              Mentions légales
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityLabel="Ouvrir la politique de confidentialité"
+            accessibilityRole="link"
+            onPress={() => openLegalUrl(PRIVACY_URL)}
+          >
+            <Text className="text-xs font-semibold text-slate-400">
+              Politique de confidentialité
+            </Text>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>

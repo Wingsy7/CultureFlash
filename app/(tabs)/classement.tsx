@@ -85,13 +85,13 @@ export default function LeaderboardScreen() {
           </Text>
         </View>
         <Pressable
-          accessibilityLabel="Debloquer le classement Pro"
+          accessibilityLabel="Débloquer le classement Pro"
           accessibilityRole="button"
           className="rounded-lg bg-emerald-600 px-5 py-4"
           onPress={() => router.push('/paywall')}
         >
           <Text className="text-center text-base font-black text-white">
-            Debloquer avec Pro
+            Débloquer avec Pro
           </Text>
         </Pressable>
       </SafeAreaView>
@@ -132,7 +132,7 @@ export default function LeaderboardScreen() {
                   {entry.username ?? 'Joueur'}
                 </Text>
                 <Text className="text-sm font-semibold text-slate-500">
-                  {entry.totalCorrect}/{entry.totalPlayed} bonnes reponses
+                  {entry.totalCorrect}/{entry.totalPlayed} bonnes réponses
                 </Text>
               </View>
               <Text className="text-lg font-black text-slate-950">

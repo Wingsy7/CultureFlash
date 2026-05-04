@@ -17,7 +17,7 @@ import { requestNotificationPermissions } from '@/lib/notifications';
 const slides = [
   {
     title: 'Une question par jour',
-    body: 'Reviens chaque jour pour une dose courte de culture generale.',
+    body: 'Reviens chaque jour pour une dose courte de culture générale.',
     marker: '1',
   },
   {

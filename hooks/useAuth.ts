@@ -22,6 +22,9 @@ type OAuthTokens = {
   refreshToken: string | null;
 };
 
+let authListenerStarted = false;
+let bootstrapPromise: Promise<void> | null = null;
+
 const readStringMetadata = (
   metadata: Record<string, unknown>,
   key: string,
@@ -93,78 +96,92 @@ const ensureUserRows = async (user: User): Promise<void> => {
   }
 };
 
+const applySessionToStore = async (session: Session | null): Promise<void> => {
+  const { resetUserState, setUser } = useUserStore.getState();
+
+  if (!session?.user) {
+    resetUserState();
+    return;
+  }
+
+  const mappedUser = mapSupabaseUser(session.user);
+  setUser(mappedUser);
+  await ensureUserRows(mappedUser);
+};
+
+const bootstrapAuthSession = async (): Promise<void> => {
+  const { setAuthIsLoading } = useUserStore.getState();
+  setAuthIsLoading(true);
+
+  try {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+      throw error;
+    }
+
+    await applySessionToStore(data.session);
+  } finally {
+    setAuthIsLoading(false);
+  }
+};
+
+const getBootstrapPromise = (): Promise<void> => {
+  bootstrapPromise ??= bootstrapAuthSession();
+
+  return bootstrapPromise;
+};
+
+const startAuthListener = (): void => {
+  if (authListenerStarted) {
+    return;
+  }
+
+  authListenerStarted = true;
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    void applySessionToStore(session).catch(() => undefined);
+  });
+};
+
 export const useAuth = (): UseAuthResult => {
   const user = useUserStore((state) => state.user);
-  const setUser = useUserStore((state) => state.setUser);
+  const authIsLoading = useUserStore((state) => state.authIsLoading);
+  const setAuthIsLoading = useUserStore((state) => state.setAuthIsLoading);
   const resetUserState = useUserStore((state) => state.resetUserState);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(authIsLoading);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const applySession = useCallback(
-    async (session: Session | null): Promise<void> => {
-      if (!session?.user) {
-        resetUserState();
-        return;
-      }
-
-      const mappedUser = mapSupabaseUser(session.user);
-      setUser(mappedUser);
-      await ensureUserRows(mappedUser);
-    },
-    [resetUserState, setUser],
-  );
 
   useEffect(() => {
     let isMounted = true;
 
-    const bootstrapSession = async (): Promise<void> => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
+    startAuthListener();
 
-        if (error) {
-          throw error;
-        }
-
-        await applySession(data.session);
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Impossible de charger la session utilisateur.';
-
+    void getBootstrapPromise()
+      .catch((error: unknown) => {
         if (isMounted) {
-          setErrorMessage(message);
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : 'Impossible de charger la session utilisateur.',
+          );
         }
-      } finally {
+      })
+      .finally(() => {
         if (isMounted) {
           setIsLoading(false);
         }
-      }
-    };
-
-    void bootstrapSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      void applySession(session).catch((error: unknown) => {
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : 'Impossible de synchroniser la session.',
-        );
       });
-    });
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
     };
-  }, [applySession]);
+  }, []);
 
   const signInWithProvider = useCallback(
     async (provider: OAuthProvider): Promise<void> => {
       setIsLoading(true);
+      setAuthIsLoading(true);
       setErrorMessage(null);
 
       try {
@@ -182,7 +199,7 @@ export const useAuth = (): UseAuthResult => {
         }
 
         if (!data.url) {
-          throw new Error('Supabase n’a pas retourne d’URL OAuth.');
+          throw new Error('Supabase n’a pas retourné d’URL OAuth.');
         }
 
         const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
@@ -194,7 +211,7 @@ export const useAuth = (): UseAuthResult => {
         const tokens = parseOAuthTokens(result.url);
 
         if (!tokens.accessToken || !tokens.refreshToken) {
-          throw new Error('La connexion OAuth n’a pas retourne de session valide.');
+          throw new Error('La connexion OAuth n’a pas retourné de session valide.');
         }
 
         const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
@@ -206,20 +223,22 @@ export const useAuth = (): UseAuthResult => {
           throw sessionError;
         }
 
-        await applySession(sessionData.session);
+        await applySessionToStore(sessionData.session);
       } catch (error) {
         setErrorMessage(
-          error instanceof Error ? error.message : 'La connexion a echoue.',
+          error instanceof Error ? error.message : 'La connexion a échoué.',
         );
       } finally {
         setIsLoading(false);
+        setAuthIsLoading(false);
       }
     },
-    [applySession],
+    [setAuthIsLoading],
   );
 
   const signOut = useCallback(async (): Promise<void> => {
     setIsLoading(true);
+    setAuthIsLoading(true);
     setErrorMessage(null);
 
     try {
@@ -232,12 +251,13 @@ export const useAuth = (): UseAuthResult => {
       resetUserState();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'La deconnexion a echoue.',
+        error instanceof Error ? error.message : 'La déconnexion a échoué.',
       );
     } finally {
       setIsLoading(false);
+      setAuthIsLoading(false);
     }
-  }, [resetUserState]);
+  }, [resetUserState, setAuthIsLoading]);
 
   return {
     user,

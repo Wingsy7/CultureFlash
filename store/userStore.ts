@@ -10,11 +10,13 @@ import type {
 
 type UserStoreState = {
   user: User | null;
+  authIsLoading: boolean;
   streak: Streak | null;
   weeklyStats: WeeklyStats;
   todayAnswer: DailyAnswer | null;
   subscriptionStatus: SubscriptionStatus;
   setUser: (user: User | null) => void;
+  setAuthIsLoading: (isLoading: boolean) => void;
   setStreak: (streak: Streak | null) => void;
   setWeeklyStats: (weeklyStats: WeeklyStats) => void;
   setTodayAnswer: (answer: DailyAnswer | null) => void;
@@ -32,11 +34,13 @@ export const initialStreak: Streak = {
 
 export const useUserStore = create<UserStoreState>((set) => ({
   user: null,
+  authIsLoading: true,
   streak: null,
   weeklyStats: [],
   todayAnswer: null,
   subscriptionStatus: 'free',
   setUser: (user) => set({ user }),
+  setAuthIsLoading: (authIsLoading) => set({ authIsLoading }),
   setStreak: (streak) => set({ streak }),
   setWeeklyStats: (weeklyStats) => set({ weeklyStats }),
   setTodayAnswer: (todayAnswer) => set({ todayAnswer }),
@@ -44,6 +48,7 @@ export const useUserStore = create<UserStoreState>((set) => ({
   resetUserState: () =>
     set({
       user: null,
+      authIsLoading: false,
       streak: null,
       weeklyStats: [],
       todayAnswer: null,

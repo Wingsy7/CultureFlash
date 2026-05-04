@@ -4,7 +4,8 @@ Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,
     shouldSetBadge: false,
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -57,9 +58,9 @@ export const scheduleDailyQuestionReminder = async ({
       sound: true,
     },
     trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
       minute,
-      repeats: true,
     },
   });
 };

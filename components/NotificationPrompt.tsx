@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
@@ -25,6 +25,16 @@ export const NotificationPrompt = memo(function NotificationPrompt({
   const [selectedLabel, setSelectedLabel] = useState('08:00');
   const [message, setMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    SecureStore.getItemAsync(NOTIFICATION_TIME_KEY)
+      .then((savedTime) => {
+        if (savedTime) {
+          setSelectedLabel(savedTime);
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
   const scheduleReminder = useCallback(
     async (time: (typeof notificationTimes)[number]): Promise<void> => {
       setSelectedLabel(time.label);
@@ -38,7 +48,7 @@ export const NotificationPrompt = memo(function NotificationPrompt({
           currentStreak,
           hasPlayedToday,
         });
-        setMessage('Rappel configure.');
+        setMessage('Rappel configuré.');
       } catch (error) {
         setMessage(
           error instanceof Error
@@ -57,7 +67,7 @@ export const NotificationPrompt = memo(function NotificationPrompt({
           Choisis ton heure
         </Text>
         <Text className="mt-1 text-sm text-slate-500">
-          Un rappel quotidien pour proteger ton streak.
+          Un rappel quotidien pour protéger ton streak.
         </Text>
       </View>
 
@@ -67,7 +77,7 @@ export const NotificationPrompt = memo(function NotificationPrompt({
 
           return (
             <Pressable
-              accessibilityLabel={`Programmer le rappel a ${time.label}`}
+              accessibilityLabel={`Programmer le rappel à ${time.label}`}
               accessibilityRole="button"
               className={`flex-1 rounded-lg border px-3 py-3 ${
                 isSelected

@@ -19,7 +19,7 @@ const getMotivationMessage = (currentStreak: number): string => {
   }
 
   if (currentStreak > 0) {
-    return 'Continue sur ta lancee !';
+    return 'Continue sur ta lancée !';
   }
 
   return 'Commence ton aventure !';

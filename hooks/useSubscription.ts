@@ -93,7 +93,7 @@ export const useSubscription = (): UseSubscriptionResult => {
       } catch (error) {
         if (!isUserCancelledPurchase(error)) {
           setErrorMessage(
-            error instanceof Error ? error.message : 'L’achat a echoue.',
+            error instanceof Error ? error.message : 'L’achat a échoué.',
           );
         }
       } finally {
@@ -122,7 +122,7 @@ export const useSubscription = (): UseSubscriptionResult => {
       setSubscriptionStatus(hasProEntitlement(customerInfo) ? 'pro' : 'free');
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'La restauration a echoue.',
+        error instanceof Error ? error.message : 'La restauration a échoué.',
       );
     } finally {
       setIsLoading(false);

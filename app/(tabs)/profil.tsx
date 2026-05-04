@@ -82,13 +82,13 @@ export default function ProfileScreen() {
         ) : null}
 
         <Pressable
-          accessibilityLabel="Se deconnecter"
+          accessibilityLabel="Se déconnecter"
           accessibilityRole="button"
           className="rounded-lg border border-slate-200 bg-white px-5 py-4"
           onPress={() => void signOut()}
         >
           <Text className="text-center text-base font-black text-slate-700">
-            Se deconnecter
+            Se déconnecter
           </Text>
         </Pressable>
       </ScrollView>

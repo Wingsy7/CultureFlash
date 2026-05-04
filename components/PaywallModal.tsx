@@ -18,10 +18,10 @@ export const PaywallModal = memo(function PaywallModal({
         <View className="gap-5 rounded-t-lg bg-white p-6">
           <View className="gap-2">
             <Text className="text-2xl font-black text-slate-950">
-              Passez a Quiz Pro
+              Passez à Quiz Pro
             </Text>
             <Text className="text-base leading-6 text-slate-600">
-              Debloquez le classement, les categories avancees et les defis entre amis.
+              Débloquez le classement, les catégories avancées et les défis entre amis.
             </Text>
           </View>
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -51,6 +51,15 @@ export default function LoginScreen() {
                 Continuer avec Apple
               </Text>
             </Pressable>
+          ) : null}
+
+          {isLoading ? (
+            <View className="flex-row items-center justify-center gap-2 py-2">
+              <ActivityIndicator color="#059669" />
+              <Text className="text-sm font-semibold text-slate-500">
+                Connexion en cours...
+              </Text>
+            </View>
           ) : null}
         </View>
 

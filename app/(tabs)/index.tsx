@@ -5,12 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NotificationPrompt } from '@/components/NotificationPrompt';
 import { StreakCard } from '@/components/StreakCard';
-import { useAuth } from '@/hooks/useAuth';
 import { useStreak } from '@/hooks/useStreak';
+import { useUserStore } from '@/store/userStore';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { isLoading: isAuthLoading, user } = useAuth();
+  const user = useUserStore((state) => state.user);
+  const authIsLoading = useUserStore((state) => state.authIsLoading);
   const {
     errorMessage,
     hasPlayedToday,
@@ -22,10 +23,10 @@ export default function HomeScreen() {
   } = useStreak();
 
   useEffect(() => {
-    if (!isAuthLoading && !user) {
+    if (!authIsLoading && !user) {
       router.replace('/onboarding');
     }
-  }, [isAuthLoading, router, user]);
+  }, [authIsLoading, router, user]);
 
   return (
     <SafeAreaView className="flex-1 bg-paper">
@@ -50,10 +51,10 @@ export default function HomeScreen() {
         {todayAnswer ? (
           <View className="gap-2 rounded-lg bg-white p-4 shadow-sm shadow-slate-200">
             <Text className="text-base font-black text-slate-950">
-              Reponse du jour
+              Réponse du jour
             </Text>
             <Text className="text-sm leading-6 text-slate-600">
-              {todayAnswer.isCorrect ? 'Bonne reponse.' : 'Bonne reponse attendue :'}{' '}
+              {todayAnswer.isCorrect ? 'Bonne réponse.' : 'Bonne réponse attendue :'}{' '}
               {todayAnswer.correctAnswer}
             </Text>
           </View>

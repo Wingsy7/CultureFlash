@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AppState } from 'react-native';
 
 import { getLocalDateKey, shiftLocalDateKey } from '@/lib/trivia';
 import { supabase } from '@/lib/supabase';
@@ -58,7 +59,7 @@ const mapDailyAnswerRow = (row: DailyAnswerRow): DailyAnswer => ({
   chosenAnswer: row.chosen_answer,
   correctAnswer: row.correct_answer,
   isCorrect: row.is_correct,
-  category: row.category ?? 'Culture generale',
+  category: row.category ?? 'Culture générale',
   playedAt: row.played_at,
 });
 
@@ -225,7 +226,7 @@ export const useStreak = (): UseStreakResult => {
   const recordAnswer = useCallback(
     async ({ question, chosenAnswer }: RecordAnswerInput): Promise<DailyAnswer> => {
       if (!user) {
-        throw new Error('Tu dois etre connecte pour jouer.');
+        throw new Error('Tu dois être connecté pour jouer.');
       }
 
       const localToday = getLocalDateKey();
@@ -273,8 +274,6 @@ export const useStreak = (): UseStreakResult => {
       ]));
 
       try {
-        await loadStreakRow(user.id);
-
         const { error: answerError } = await supabase.from('daily_answers').insert({
           user_id: user.id,
           question_id: answer.questionId,
@@ -309,13 +308,12 @@ export const useStreak = (): UseStreakResult => {
         void refreshStreak();
         throw error instanceof Error
           ? error
-          : new Error('Impossible d’enregistrer ta reponse.');
+          : new Error('Impossible d’enregistrer ta réponse.');
       }
 
       return answer;
     },
     [
-      loadStreakRow,
       refreshStreak,
       setStreak,
       setTodayAnswer,
@@ -329,6 +327,16 @@ export const useStreak = (): UseStreakResult => {
 
   useEffect(() => {
     void refreshStreak();
+  }, [refreshStreak]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        void refreshStreak();
+      }
+    });
+
+    return () => subscription.remove();
   }, [refreshStreak]);
 
   return {
