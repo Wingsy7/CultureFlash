@@ -6,6 +6,8 @@ Application mobile Expo / React Native de quiz culturel quotidien.
 
 ```bash
 npm install
+npx expo install --fix
+npx expo-doctor@latest
 npm run start
 ```
 
@@ -32,4 +34,13 @@ schema de redirection Expo `cultureflash://auth/callback` dans les URLs autorise
 
 ```bash
 npm run typecheck
+npx expo-doctor@latest
+```
+
+## Build store
+
+```bash
+eas build:configure
+eas build --platform ios --profile production
+eas build --platform android --profile production
 ```

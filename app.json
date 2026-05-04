@@ -5,21 +5,44 @@
     "scheme": "cultureflash",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#07111f"
+    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cultureflash.app"
+      "bundleIdentifier": "com.cultureflash.app",
+      "icon": "./assets/icon.png"
     },
     "android": {
       "package": "com.cultureflash.app",
       "adaptiveIcon": {
-        "backgroundColor": "#0f172a"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#07111f"
       }
     },
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#10b981"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#07111f"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
