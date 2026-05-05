@@ -39,7 +39,6 @@ export type DailyAnswer = {
 export type SubscriptionStatus = 'free' | 'pro';
 
 export type LeaderboardEntry = {
-  id: string;
   username: string | null;
   avatarUrl: string | null;
   currentStreak: number;

@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabase';
 import type { LeaderboardEntry } from '@/types';
 
 type LeaderboardRow = {
-  id: string;
   username: string | null;
   avatar_url: string | null;
   current_streak: number;
@@ -19,7 +18,6 @@ type LeaderboardRow = {
 };
 
 const mapLeaderboardRow = (row: LeaderboardRow): LeaderboardEntry => ({
-  id: row.id,
   username: row.username,
   avatarUrl: row.avatar_url,
   currentStreak: row.current_streak,
@@ -45,12 +43,7 @@ export default function LeaderboardScreen() {
     setErrorMessage(null);
 
     try {
-      const { data, error } = await supabase
-        .from('leaderboard')
-        .select(
-          'id,username,avatar_url,current_streak,longest_streak,total_correct,total_played,accuracy',
-        )
-        .limit(50);
+      const { data, error } = await supabase.rpc('get_leaderboard');
 
       if (error) {
         throw error;
@@ -122,7 +115,7 @@ export default function LeaderboardScreen() {
           {entries.map((entry, index) => (
             <View
               className="flex-row items-center gap-3 rounded-lg bg-white p-4 shadow-sm shadow-slate-200"
-              key={entry.id}
+              key={`${entry.username ?? 'joueur'}-${index}`}
             >
               <Text className="w-8 text-xl font-black text-emerald-700">
                 {index + 1}

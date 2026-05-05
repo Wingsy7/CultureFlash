@@ -31,9 +31,19 @@ create table if not exists daily_answers (
   unique(user_id, played_at)
 );
 
-create or replace view leaderboard as
+-- Updated only from a trusted backend or RevenueCat webhook.
+create table if not exists subscriptions (
+  user_id uuid references profiles(id) on delete cascade primary key,
+  status text not null default 'free' check (status in ('free', 'pro')),
+  revenuecat_app_user_id text,
+  entitlement text default 'pro',
+  updated_at timestamp with time zone default now()
+);
+
+drop view if exists leaderboard;
+
+create view leaderboard as
   select
-    p.id,
     p.username,
     p.avatar_url,
     s.current_streak,
@@ -45,9 +55,13 @@ create or replace view leaderboard as
   join streaks s on s.user_id = p.id
   order by s.current_streak desc, s.total_correct desc;
 
+revoke all on leaderboard from public;
+revoke all on leaderboard from anon, authenticated;
+
 alter table profiles enable row level security;
 alter table streaks enable row level security;
 alter table daily_answers enable row level security;
+alter table subscriptions enable row level security;
 
 create policy "users can view own profile" on profiles
   for select using (auth.uid() = id);
@@ -73,3 +87,51 @@ create policy "users can insert own answers" on daily_answers
 
 create policy "users can view own answers" on daily_answers
   for select using (auth.uid() = user_id);
+
+create policy "users can view own subscription" on subscriptions
+  for select using (auth.uid() = user_id);
+
+create or replace function get_leaderboard()
+returns table (
+  username text,
+  avatar_url text,
+  current_streak integer,
+  longest_streak integer,
+  total_correct integer,
+  total_played integer,
+  accuracy numeric
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+
+  if not exists (
+    select 1
+    from subscriptions
+    where user_id = auth.uid()
+      and status = 'pro'
+  ) then
+    raise exception 'pro_subscription_required';
+  end if;
+
+  return query
+    select
+      l.username,
+      l.avatar_url,
+      l.current_streak,
+      l.longest_streak,
+      l.total_correct,
+      l.total_played,
+      l.accuracy
+    from leaderboard l
+    limit 50;
+end;
+$$;
+
+revoke all on function get_leaderboard() from public;
+grant execute on function get_leaderboard() to authenticated;
